@@ -121,6 +121,8 @@ ydl_opts = {
     'noplaylist': True,
     'extractaudio': True,
     'audioformat': 'mp3',
+    'default_search': 'ytsearch',  # Busca no YouTube se não for URL
+    'max_downloads': 1,  # Limita a busca ao primeiro resultado
 }
 
 # dict para armazenar filas de músicas por servidor (guild.id)
@@ -153,7 +155,7 @@ async def play_next(ctx):
         await ctx.voice_client.disconnect()
 
 @client.command(aliases=["p", "tocar"])
-async def play(ctx, url):
+async def play(ctx, *, url):
     # Inicializa a fila e o lock para o servidor se não existirem
     if ctx.guild.id not in queues:
         queues[ctx.guild.id] = []
@@ -161,10 +163,18 @@ async def play(ctx, url):
         queue_locks[ctx.guild.id] = asyncio.Lock()
 
     with YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(url, download=False)
+        try:
+            info = ydl.extract_info(url, download=False)
+        except:
+            await ctx.reply(f"❌ Ocorreu um erro ao buscar o vídeo.")
+            return
+        
+        if 'entries' in info:
+            info = info['entries'][0]
+
         url2 = info['url']
         title = info.get('title', 'Título não encontrado')
-
+    
     async with queue_locks[ctx.guild.id]:
         queues[ctx.guild.id].append({
             'title': title,
