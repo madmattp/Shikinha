@@ -152,7 +152,9 @@ async def play_next(ctx):
             print(e)
             await vc.disconnect()
     else:
-        await ctx.voice_client.disconnect()
+        await asyncio.sleep(60)
+        if not ctx.voice_client.is_playing() and ctx.voice_client:
+            await ctx.voice_client.disconnect()
 
 @client.command(aliases=["p", "tocar"])
 async def play(ctx, *, url):
