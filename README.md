@@ -45,7 +45,7 @@ With that done, you can set up the bot in two ways: Local or via Docker. Choose 
     python3 shikinha.py
     ```
 
-### Method 2: Docker Setup
+### Method 2: Docker Setup (Recommended)
   1. Ensure that Docker is installed on your system. If not, follow the installation instructions on the [official Docker website](https://www.docker.com).
   2. Build and run the Docker container with the following commands:
      
