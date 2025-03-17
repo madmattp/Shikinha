@@ -58,8 +58,8 @@ With that done, you can set up the bot in two ways: Local or via Docker. Choose 
 ## Commands
 
 ### Music:
-  * ```play [url]```
-    * Plays a song from the provided URL (YouTube link).
+  * ```play [Music/URL]```
+    * Plays a song by searching YouTube for the provided query or from a direct URL (YouTube link).
   * ```skip```
     * Skips the currently playing song.
   * ```pause```
