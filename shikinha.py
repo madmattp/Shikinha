@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import discord
 from discord.ext import commands, tasks
 from yt_dlp import YoutubeDL
