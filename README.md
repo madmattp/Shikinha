@@ -74,6 +74,10 @@ With that done, you can set up the bot in two ways: Local or via Docker. Choose 
   * Displays a help message.
 * ```ping```
   * Shows the bot's latency.
+* ```cat```
+  * Shows a picture of a random cat.
+* ```dog```
+  * Shows a picture of a random dog.
 * ```e621 [tags]```(NSFW)
   * Searches for a random post on E621 with the provided tags.
 * ```rule34 [tags]``` (NSFW)

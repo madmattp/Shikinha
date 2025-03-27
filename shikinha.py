@@ -6,6 +6,7 @@ import tomllib
 from random import choice
 from e621 import E621
 from rule34Py import rule34Py
+import requests
 
 with open("config.toml", "rb") as f:
     data = tomllib.load(f)
@@ -42,8 +43,6 @@ async def change_status():
 async def main():
     await client.start(TOKEN)
 
-############ REGULAR STUFF #############
-
 @client.command(aliases=["h"])
 async def help(ctx):
     embed = discord.Embed(
@@ -56,6 +55,8 @@ async def help(ctx):
     embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/767002076257452053/758bef70a617ebb543bcf154341a5e5a.png?size=1024")
     embed.add_field(name="help", value="● Retorna a minha lista de Comandos.", inline=False)
     embed.add_field(name="ping", value="● Retorna a latência em milissegundos.", inline=False)
+    embed.add_field(name="cat", value="● Retorna uma imagem aleatória de um gato.", inline=False)
+    embed.add_field(name="dog", value="● Retorna uma imagem aleatória de um cachorro.", inline=False)
     embed.add_field(name="play <link>", value="● Busca no Youtube pelo áudio desejado (<link>).", inline=False)
     embed.add_field(name="skip", value="● Pula para o próximo áudio.", inline=False)
     embed.add_field(name="pause", value="● Pausa o áudio atual.", inline=False)
@@ -67,51 +68,6 @@ async def help(ctx):
     await ctx.message.add_reaction("📜")
     await ctx.send(embed=embed)
 
-@client.command()
-async def ping(ctx):
-    await ctx.send(f"Pong! **{round(client.latency * 1000)}ms**")
-
-############## NSFW ##################
-
-@client.command(aliases=["e621"])  # NSFW
-async def e6(ctx, *, tags):
-    api = E621()
-
-    posts = api.posts.search(f"{str(tags)} -webm")
-    post = choice(posts)
-    img = post.file_obj.url
-    
-    tags_obj = post.tags
-    tags = tags_obj.general + tags_obj.species + tags_obj.character + tags_obj.copyright + tags_obj.invalid + tags_obj.lore + tags_obj.artist
-    tags = " ".join(tags)
-
-    embed = discord.Embed(colour = discord.Colour.from_rgb(2, 54, 102))
-    embed.set_image(url=f"{img}")
-    embed.set_footer(text=f"Tags: {tags}")
-
-    await ctx.send(embed=embed)
-
-@client.command(aliases=["rule34", "r3"])  # NSFW
-async def r34(ctx, *, tags):
-    tags = tags.split()
-
-    while("video" in tags):
-        tags.remove("video")
-    tags.append("-video")
-    
-    r34Py = rule34Py()
-
-    result_random = r34Py.random_post(tags)
-    img = result_random.image
-    tags = result_random._tags   
-    tags = " ".join(tags)
-
-    embed = discord.Embed(colour = discord.Colour.from_rgb(170, 229, 164))
-    embed.set_image(url=f"{img}")
-    embed.set_footer(text=f"Tags: {tags}")
-    
-    await ctx.send(embed=embed)
-    
 
 ########### MUSIC COMMANDS #############
 
@@ -233,6 +189,90 @@ async def resume(ctx):
         await ctx.message.add_reaction("▶️")
     else:
         await ctx.reply("Não há música pausada no momento.")
+
+
+############ MISCELLANEOUS #############
+
+@client.command()
+async def ping(ctx):
+    await ctx.send(f"Pong! **{round(client.latency * 1000)}ms**")
+
+@client.command()
+async def dog(ctx):
+    response = requests.get(url="https://api.thedogapi.com/v1/images/search")
+    content = response.json()[0]
+    if response.status_code == 200:
+        url = content['url']
+
+        embed = discord.Embed(  
+            colour = discord.Colour.from_rgb(33, 170, 213)
+        )
+        embed.set_image(url=url)
+
+        await ctx.message.add_reaction("🐶")
+        await ctx.send(embed=embed)
+    else:
+        await ctx.message.add_reaction("❌")
+        await ctx.reply("Uhh... Não consegui achar nenhum cachorro? Algo de errado aconteceu 🤔")
+
+
+@client.command(aliases=['car'])
+async def cat(ctx):
+    response = requests.get(url="https://api.thecatapi.com/v1/images/search")
+    content = response.json()[0]
+    
+    if response.status_code == 200:
+        url = content['url']
+
+        embed = discord.Embed(  
+            colour = discord.Colour.from_rgb(255, 104, 65)
+        )
+        embed.set_image(url=url)
+
+        await ctx.message.add_reaction("🐈")
+        await ctx.send(embed=embed)
+    else:
+        await ctx.message.add_reaction("❌")
+        await ctx.reply("Uhh... Não consegui achar nenhum gato? Algo de errado aconteceu 🤔")
+
+@client.command(aliases=["e621"])  # NSFW
+async def e6(ctx, *, tags):
+    api = E621()
+
+    posts = api.posts.search(f"{str(tags)} -webm")
+    post = choice(posts)
+    img = post.file_obj.url
+    
+    tags_obj = post.tags
+    tags = tags_obj.general + tags_obj.species + tags_obj.character + tags_obj.copyright + tags_obj.invalid + tags_obj.lore + tags_obj.artist
+    tags = " ".join(tags)
+
+    embed = discord.Embed(colour = discord.Colour.from_rgb(2, 54, 102))
+    embed.set_image(url=f"{img}")
+    embed.set_footer(text=f"Tags: {tags}")
+
+    await ctx.send(embed=embed)
+
+@client.command(aliases=["rule34", "r3"])  # NSFW
+async def r34(ctx, *, tags):
+    tags = tags.split()
+
+    while("video" in tags):
+        tags.remove("video")
+    tags.append("-video")
+    
+    r34Py = rule34Py()
+
+    result_random = r34Py.random_post(tags)
+    img = result_random.image
+    tags = result_random._tags   
+    tags = " ".join(tags)
+
+    embed = discord.Embed(colour = discord.Colour.from_rgb(170, 229, 164))
+    embed.set_image(url=f"{img}")
+    embed.set_footer(text=f"Tags: {tags}")
+    
+    await ctx.send(embed=embed)
 
 ######################################
 
