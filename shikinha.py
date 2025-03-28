@@ -212,7 +212,7 @@ async def dog(ctx):
         embed.set_image(url=url)
 
         await ctx.message.add_reaction("🐶")
-        await ctx.send(embed=embed)
+        await ctx.reply(embed=embed)
     else:
         await ctx.message.add_reaction("❌")
         await ctx.reply("Uhh... Não consegui achar nenhum cachorro? Algo de errado aconteceu 🤔")
@@ -232,7 +232,7 @@ async def cat(ctx):
         embed.set_image(url=url)
 
         await ctx.message.add_reaction("🐈")
-        await ctx.send(embed=embed)
+        await ctx.reply(embed=embed)
     else:
         await ctx.message.add_reaction("❌")
         await ctx.reply("Uhh... Não consegui achar nenhum gato? Algo de errado aconteceu 🤔")
