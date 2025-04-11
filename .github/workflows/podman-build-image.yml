@@ -1,27 +1,16 @@
-name: Build and Deploy Shikinha
+name: Build Shikinha
 
 on:
   push:
     branches: [ "main" ]
 
 jobs:
-  test-podman:
+  deploy:
     runs-on: self-hosted
+
     steps:
-    - name: Set XDG_RUNTIME_DIR
-      run: |
-        export XDG_RUNTIME_DIR=/run/user/$(id -u)
-        echo "XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR" >> $GITHUB_ENV
-
-    - name: Start podman service
-      run: |
-        nohup podman system service --time=0 unix://$XDG_RUNTIME_DIR/podman/podman.sock &
-
-    - name: Run podman (remote)
-      env:
-        CONTAINER_HOST: unix:///run/user/1000/podman/podman.sock
-      run: |
-        podman --remote run --rm alpine echo "Hello from podman"
-
-    - name: Run container
-      run: podman run -d --replace --name Shikinha shikinha:latest
+    - name: Checkout repository
+      uses: actions/checkout@v3
+        
+    - name: Build image
+      run: podman build -t shikinha:latest .
