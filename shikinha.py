@@ -9,6 +9,7 @@ from random import choice
 from e621 import E621
 from rule34Py import rule34Py
 import requests
+import os
 
 with open("config.toml", "rb") as f:
     data = tomllib.load(f)
@@ -236,6 +237,47 @@ async def cat(ctx):
     else:
         await ctx.message.add_reaction("❌")
         await ctx.reply("Uhh... Não consegui achar nenhum gato? Algo de errado aconteceu 🤔")
+
+@client.command()
+async def mp3(ctx, *, url):   # BETA
+    await ctx.message.add_reaction("👍")
+
+    output_name = "download.%(ext)s"
+    target_file = "download.mp3"
+
+    other_ydl_opts = {
+        'format': 'bestaudio/best',
+        'outtmpl': output_name,
+        'postprocessors': [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'mp3',
+            'preferredquality': '128',
+        }],
+        'noplaylist': True
+    }
+    # O Discord tem um limite de 8 MB para arquivos, defini o bitrate para 128kbps para
+    # tentar manter o arquivo .mp3 dentro desse limite
+
+    try:
+        with YoutubeDL(other_ydl_opts) as ydl:
+            ydl.download([url])
+    except Exception as e:
+        await ctx.reply(f"❌ Erro ao baixar: {e}")
+        return
+
+    if not os.path.isfile(target_file):
+        await ctx.reply("❌ Arquivo não encontrado após o download.")
+        return
+
+    try:
+        await ctx.reply(
+            "🎶 Aqui está seu arquivo de áudio:",
+            file=discord.File(target_file)
+        )
+    except Exception as e:
+        await ctx.send(f"❌ Erro ao enviar o arquivo: {e}")
+    finally:
+        os.remove(target_file)
 
 @client.command(aliases=["e621"])  # NSFW
 async def e6(ctx, *, tags):
