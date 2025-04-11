@@ -12,9 +12,13 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Build image with Podman
+    - name: Build image
       run: podman build -t shikinha:latest .
 
+    - name: Stop old container
+      run: |
+        podman stop Shikinha || true
+        podman rm Shikinha || true
+
     - name: Run container
-      run: podman run -d --replace --name Shikinha shikinha:latest
-      
+      run: podman run -d --name Shikinha shikinha:latest
