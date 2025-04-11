@@ -3,7 +3,11 @@ name: Build Shikinha
 on:
   push:
     branches: [ "main" ]
-
+    paths-ignore:
+      - 'README.md'
+  pull_request:
+    paths-ignore:
+      - 'README.md'
 jobs:
   deploy:
     runs-on: self-hosted
