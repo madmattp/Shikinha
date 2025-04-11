@@ -173,7 +173,6 @@ async def skip(ctx):
     if ctx.voice_client:
         ctx.voice_client.stop()
         await ctx.message.add_reaction("👍")
-        await play_next(ctx)
     else:
         await ctx.reply("Não há música tocando no momento.")
 
@@ -193,7 +192,28 @@ async def resume(ctx):
     else:
         await ctx.reply("Não há música pausada no momento.")
 
+@client.command(aliases=["q", "fila"])
+async def queue(ctx):
+    if (ctx.guild.id not in queues) or (len(queues[ctx.guild.id]) == 0):
+        await ctx.reply("A fila está vazia!")
+        return
+    if ctx.guild.id not in queue_locks:
+        queue_locks[ctx.guild.id] = asyncio.Lock()
 
+    embed = discord.Embed(
+            title="Fila:",
+            colour = discord.Colour.from_rgb(255, 220, 93),
+            description="")
+
+    async with queue_locks[ctx.guild.id]:
+        titles = [item['title'] for item in queues[ctx.guild.id]]
+
+    for index, title in enumerate(titles, start=1):
+        embed.description += f"[{index}] - {title}\n"
+
+    await ctx.message.add_reaction("📜")
+    await ctx.send(embed=embed)
+    
 ############ MISCELLANEOUS #############
 
 @client.command()
@@ -217,7 +237,6 @@ async def dog(ctx):
     else:
         await ctx.message.add_reaction("❌")
         await ctx.reply("Uhh... Não consegui achar nenhum cachorro? Algo de errado aconteceu 🤔")
-
 
 @client.command(aliases=['car'])
 async def cat(ctx):
