@@ -12,6 +12,12 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
+    - name: Check Podman Rootless Info
+      run: |
+        podman info
+        id
+        loginctl show-user $(whoami) | grep Linger
+        
     - name: Build image
       run: podman build -t shikinha:latest .
 
