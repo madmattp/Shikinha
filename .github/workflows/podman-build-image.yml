@@ -21,4 +21,4 @@ jobs:
         podman rm Shikinha || true
 
     - name: Run container
-      run: podman run -d --name Shikinha shikinha:latest
+      run: podman run -d --replace --name Shikinha shikinha:latest
