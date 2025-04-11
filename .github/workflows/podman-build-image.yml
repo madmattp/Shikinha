@@ -1,0 +1,24 @@
+name: Build and Deploy Shikinha
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Build image
+      run: podman build -t shikinha:latest .
+
+    - name: Stop old container
+      run: |
+        podman stop Shikinha || true
+        podman rm Shikinha || true
+
+    - name: Run container
+      run: podman run -d --name Shikinha shikinha:latest
