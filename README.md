@@ -66,14 +66,19 @@ With that done, you can set up the bot in two ways: Local or via Docker. Choose 
     * Pauses the currently playing song.
   * ```resume```
     * Resumes the currently paused song.
+  * ```queue```
+  	* Displays the current music queue.
   * ```leave```
-  	* Makes Shikinha disconnect from your voice channel;
+  	* Makes Shikinha disconnect from your voice channel.
 
 ### Miscellaneous:
 * ```help```
   * Displays a help message.
 * ```ping```
   * Shows the bot's latency.
+* ```mp3 [URL]```
+  * Downloads and sends an MP3 version of the provided audio/video URL.
+  * ⚠️ This command will not work if the final audio file is larger than 8 MB, due to Discord's file size limit for uploads. The file is encoded at 128kbps to help keep it within this limit.
 * ```cat```
   * Shows a picture of a random cat.
 * ```dog```
