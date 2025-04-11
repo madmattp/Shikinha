@@ -5,26 +5,23 @@ on:
     branches: [ "main" ]
 
 jobs:
-  deploy:
+  test-podman:
     runs-on: self-hosted
-
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-
-    - name: Check Podman Rootless Info
+    - name: Set XDG_RUNTIME_DIR
       run: |
-        podman info
-        id
-        loginctl show-user $(whoami) | grep Linger
-        
-    - name: Build image
-      run: podman build -t shikinha:latest .
+        export XDG_RUNTIME_DIR=/run/user/$(id -u)
+        echo "XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR" >> $GITHUB_ENV
 
-    - name: Stop old container
+    - name: Start podman service
       run: |
-        podman stop Shikinha || true
-        podman rm Shikinha || true
+        nohup podman system service --time=0 unix://$XDG_RUNTIME_DIR/podman/podman.sock &
+
+    - name: Run podman (remote)
+      env:
+        CONTAINER_HOST: unix:///run/user/1000/podman/podman.sock
+      run: |
+        podman --remote run --rm alpine echo "Hello from podman"
 
     - name: Run container
       run: podman run -d --replace --name Shikinha shikinha:latest
