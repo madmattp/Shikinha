@@ -9,6 +9,7 @@ from random import choice
 from e621 import E621
 from rule34Py import rule34Py
 import requests
+import base64
 import os
 
 with open("config.toml", "rb") as f:
@@ -79,7 +80,7 @@ async def help(ctx):
 # configs do yt_dlp
 ydl_opts = {
     'format': 'bestaudio/best',
-    'noplaylist': True,
+    'noplaylist': False,
     'extractaudio': True,
     'audioformat': 'mp3',
     'default_search': 'ytsearch',  # Busca no YouTube se não for URL
@@ -123,38 +124,48 @@ async def play(ctx, *, url):
     if ctx.guild.id not in queue_locks:
         queue_locks[ctx.guild.id] = asyncio.Lock()
 
+    music_list = []
+
     with YoutubeDL(ydl_opts) as ydl:
         try:
             info = ydl.extract_info(url, download=False)
-        except:
-            await ctx.reply(f"❌ Ocorreu um erro ao buscar o vídeo.")
+        except Exception as e:
+            print(f"[play] Erro ao buscar vídeo: {e}")
+            await ctx.reply("❌ Ocorreu um erro ao buscar o vídeo.")
             return
         
+        # Se for playlist, adiciona todos os vídeos
         if 'entries' in info:
-            info = info['entries'][0]
+            for entry in info['entries']:
+                if entry is None:
+                    continue
+                music_list.append({
+                    'title': entry.get('title', 'Título não encontrado'),
+                    'url': entry['url']
+                })
+        else:
+            music_list.append({
+                'title': info.get('title', 'Título não encontrado'),
+                'url': info['url']
+            })
 
-        url2 = info['url']
-        title = info.get('title', 'Título não encontrado')
-    
+    # Adiciona à fila com lock
     async with queue_locks[ctx.guild.id]:
-        queues[ctx.guild.id].append({
-            'title': title,
-            'url': url2
-        })
+        queues[ctx.guild.id].extend(music_list)
 
     if not ctx.voice_client:
         embed = discord.Embed(
             title="🎙️ 🎶 Tocando agora...",
-            description=f"{title}",
+            description=f"{music_list[0]['title']}",
             colour=discord.Colour.from_rgb(93, 173, 236))
         await ctx.message.add_reaction("🎶")
         await ctx.reply(embed=embed)
         await play_next(ctx)
-
     else:
+        titles = [f"• {m['title']}" for m in music_list]
         embed = discord.Embed(
-            title="✋ Na fila...",
-            description=f"{title}",
+            title=f"🎶 Adicionado à fila ({len(music_list)})",
+            description="\n".join(titles[:5]) + ("\n..." if len(titles) > 5 else ""),
             colour=discord.Colour.from_rgb(255, 220, 93))
         await ctx.message.add_reaction("🎶")
         await ctx.reply(embed=embed)
