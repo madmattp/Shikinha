@@ -77,6 +77,10 @@ async def help(ctx):
 
 ########### MUSIC COMMANDS #############
 
+# dict para armazenar filas de músicas por servidor (guild.id)
+queues = {}
+queue_locks = {}
+
 # configs do yt_dlp
 ydl_opts = {
     'format': 'bestaudio/best',
@@ -86,11 +90,6 @@ ydl_opts = {
     'default_search': 'ytsearch',  # Busca no YouTube se não for URL
     'max_downloads': 1,  # Limita a busca ao primeiro resultado
 }
-
-# dict para armazenar filas de músicas por servidor (guild.id)
-queues = {}
-queue_locks = {}
-
 
 async def play_next(ctx):
     # Verifica se há músicas na fila
@@ -106,7 +105,7 @@ async def play_next(ctx):
 
         try:
             vc.play(discord.FFmpegPCMAudio(url2, 
-                before_options='-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5 -loglevel warning', 
+                before_options='-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5 -loglevel debug', 
                 options='-maxrate 1M -bufsize 1M'), 
                 after=lambda e: client.loop.create_task(play_next(ctx))
             )
@@ -353,4 +352,3 @@ async def r34(ctx, *, tags):
 ######################################
 
 asyncio.run(main())
-
