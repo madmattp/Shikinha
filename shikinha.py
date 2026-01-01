@@ -87,8 +87,14 @@ ydl_opts = {
     'noplaylist': False,
     'extractaudio': True,
     'audioformat': 'mp3',
-    'default_search': 'ytsearch',  # Busca no YouTube se não for URL
-    'max_downloads': 1,  # Limita a busca ao primeiro resultado
+    'default_search': 'ytsearch',
+    'max_downloads': 1,
+    "extractor_args": {
+        "youtube": {
+            "player_client": ["default"]
+        }
+    }
+
 }
 
 async def play_next(ctx):
