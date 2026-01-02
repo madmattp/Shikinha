@@ -2,5 +2,6 @@ discord.py==2.5.2
 e621-stable==1.0.4
 rule34Py==3.0.0
 yt_dlp
+bgutil-ytdlp-pot-provider
 PyNaCl==1.5.0
 Requests==2.32.4

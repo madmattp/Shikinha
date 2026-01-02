@@ -91,10 +91,12 @@ ydl_opts = {
     'max_downloads': 1,
     "extractor_args": {
         "youtube": {
-            "player_client": ["default"]
+            "player_client": ['android'],
+            'po_token': ['bgutil:http://bgutil-provider:4416']
+
+            #,"po_token": ["mweb.gvs+XXX"] token proof of origin
         }
     }
-
 }
 
 async def play_next(ctx):
@@ -110,11 +112,15 @@ async def play_next(ctx):
             vc = ctx.voice_client
 
         try:
-            vc.play(discord.FFmpegPCMAudio(url2, 
-                before_options='-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5 -loglevel debug', 
-                options='-maxrate 1M -bufsize 1M'), 
+            vc.play(
+                discord.FFmpegPCMAudio(
+                    url2,
+                    before_options='-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
+                    options='-vn'
+                ),
                 after=lambda e: client.loop.create_task(play_next(ctx))
             )
+
         except Exception as e:
             print(e)
             await vc.disconnect()
